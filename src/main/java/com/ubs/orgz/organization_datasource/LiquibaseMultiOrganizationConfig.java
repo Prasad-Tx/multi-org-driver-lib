@@ -18,6 +18,9 @@ public class LiquibaseMultiOrganizationConfig {
     @Value("${multi-org.liquibase.change-log:/db/changelog/" +ORG_PC+ "/db.changelog-master.xml}")
     private String changeLog;
 
+    @Value("${multi-org.liquibase.change-log-admin:/db/changelog/org_admin/db.changelog-master.xml}")
+    private String changeLogAdmin;
+
     private final com.ubs.orgz.organization_datasource.DatasourceProperties datasourceProperties;
     private final ResourceLoader resourceLoader;
 
@@ -41,7 +44,12 @@ public class LiquibaseMultiOrganizationConfig {
             SpringLiquibase liquibase = new SpringLiquibase();
             liquibase.setResourceLoader(resourceLoader);
             liquibase.setDataSource(ds);
-            liquibase.setChangeLog("classpath:" + changeLog.replace(ORG_PC, organizationId));
+            if (OrganizationContext.BOOTSTRAP_ORG.equals(organizationId)) {
+                liquibase.setChangeLog("classpath:" + changeLogAdmin);
+            }
+            else {
+                liquibase.setChangeLog("classpath:" + changeLog.replace(ORG_PC, organizationId));
+            }
             liquibase.setShouldRun(true);
             try {
                 liquibase.afterPropertiesSet();
