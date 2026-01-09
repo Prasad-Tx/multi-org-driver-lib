@@ -1,0 +1,65 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet author="system" id="create-org-profiles-table">
+        <preConditions onFail="MARK_RAN" onError="MARK_RAN">
+            <not>
+                <tableExists tableName="organization_profiles"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="organization_profiles">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="organization_profiles_pkey"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column defaultValueBoolean="false" name="deleted" type="BOOLEAN"/>
+            <column name="tenant_id" type="BIGINT"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="organization_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_value" type="VARCHAR(1023)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="system" id="create-unique-constraint-org-profiles">
+        <preConditions onFail="MARK_RAN" onError="MARK_RAN">
+            <not>
+                <indexExists indexName="uk_org_profile_id_type_key"/>
+            </not>
+        </preConditions>
+        <addUniqueConstraint
+                tableName="organization_profiles"
+                columnNames="organization_id, entity_type, entity_key"
+                constraintName="uk_org_profile_id_type_key"/>
+    </changeSet>
+
+    <changeSet author="system" id="create-index-org-profiles-org-id">
+        <preConditions onFail="MARK_RAN" onError="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_organization_profiles_org_id"/>
+            </not>
+        </preConditions>
+        <createIndex tableName="organization_profiles" indexName="idx_organization_profiles_org_id">
+            <column name="organization_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

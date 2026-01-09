@@ -1,0 +1,107 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet author="system" id="insert-initial-organization-profiles">
+        <preConditions onFail="MARK_RAN" onError="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM organization_profiles WHERE organization_id IN ('organizationA', 'organizationB')
+            </sqlCheck>
+        </preConditions>
+
+        <!-- Organization A Profiles -->
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationA"/>
+            <column name="entity_type"      value="PROPERTY"/>
+            <column name="entity_key"       value="moodle_url"/>
+            <column name="entity_value"     value="http://localhost/webservice/rest/a-server.php"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationA"/>
+            <column name="entity_type"      value="SERVICE_BEAN"/>
+            <column name="entity_key"       value="MultiOrgService"/>
+            <column name="entity_value"     value="MultiOrgServiceOrgA"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationA"/>
+            <column name="entity_type"      value="SERVICE_BEAN"/>
+            <column name="entity_key"       value="MultiOrgServiceCaseX"/>
+            <column name="entity_value"     value="MultiOrgServiceCaseXImpl"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <!-- Organization B Profiles -->
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationB"/>
+            <column name="entity_type"      value="PROPERTY"/>
+            <column name="entity_key"       value="moodle_url"/>
+            <column name="entity_value"     value="http://localhost/webservice/rest/b-server.php"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationB"/>
+            <column name="entity_type"      value="SERVICE_BEAN"/>
+            <column name="entity_key"       value="MultiOrgService"/>
+            <column name="entity_value"     value="MultiOrgServiceOrgB"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationB"/>
+            <column name="entity_type"      value="SERVICE_BEAN"/>
+            <column name="entity_key"       value="MultiOrgServiceCaseX"/>
+            <column name="entity_value"     value="MultiOrgServiceCaseXImpl"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationB"/>
+            <column name="entity_type"      value="RUNTIME_CONFIG"/>
+            <column name="entity_key"       value="approval_flow_T2"/>
+            <column name="entity_value"     value="enabled"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationA"/>
+            <column name="entity_type"      value="RUNTIME_CONFIG"/>
+            <column name="entity_key"       value="Xlevel_verification"/>
+            <column name="entity_value"     value="true"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="organization_profiles">
+            <column name="organization_id"  value="organizationB"/>
+            <column name="entity_type"      value="RUNTIME_CONFIG"/>
+            <column name="entity_key"       value="Xlevel_verification"/>
+            <column name="entity_value"     value="false"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="deleted" valueBoolean="false"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,5 +1,6 @@
 package com.ubs.orgz.organization_datasource;
 
+import com.ubs.orgz.config.OrgDatasourceProperties;
 import com.ubs.orgz.hybernate.MultiOrganizationConnectionProvider;
 import com.ubs.orgz.hybernate.OrganizationIdentifierResolver;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +26,7 @@ public class JpaConfig {
     @Bean
     @Lazy
     public MultiOrganizationConnectionProvider multiTenantConnectionProvider(
-            DatasourceProperties orgProps) {
+            OrgDatasourceProperties orgProps) {
         return new MultiOrganizationConnectionProvider(orgProps);
     }
 

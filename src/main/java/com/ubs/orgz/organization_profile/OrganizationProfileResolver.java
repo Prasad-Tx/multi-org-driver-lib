@@ -2,6 +2,7 @@ package com.ubs.orgz.organization_profile;
 
 import com.ubs.commons.exception.GearsException;
 import com.ubs.commons.exception.GearsResponseStatus;
+import com.ubs.orgz.organization.MasterStoreRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class OrganizationProfileResolver {
     }
 
     public <T> T resolve(String organizationId, Class<T> serviceType) {
-        String beanName = ProfileRegistry.getBean(organizationId, serviceType.getSimpleName());
+        String beanName = MasterStoreRegistry.getBean(organizationId, serviceType.getSimpleName());
         try {
             return context.getBean(beanName, serviceType);
         }

@@ -1,7 +1,7 @@
 package com.ubs.orgz.organization_datasource;
 
 import com.ubs.orgz.organization.OrganizationFilter;
-import com.ubs.orgz.organization_profile.OrganizationProfileProcessor;
+import com.ubs.orgz.organization_profile.process.OrgProfileLoadManager;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,10 +11,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class WebConfig {
 
-    private final OrganizationProfileProcessor profileProcessor;
+    private final OrgProfileLoadManager orgProfileLoadManager;
 
-    public WebConfig(@Lazy OrganizationProfileProcessor profileProcessor) {
-        this.profileProcessor = profileProcessor;
+    public WebConfig(@Lazy OrgProfileLoadManager orgProfileLoadManager) {
+        this.orgProfileLoadManager = orgProfileLoadManager;
     }
 
     @Bean
@@ -31,20 +31,15 @@ public class WebConfig {
 
     @Bean
     public FilterRegistrationBean<OrganizationFilter> organizationFilter() {
-        FilterRegistrationBean<OrganizationFilter> registration =
-                new FilterRegistrationBean<>();
+        FilterRegistrationBean<OrganizationFilter> registration = new FilterRegistrationBean<>();
 
         registration.setFilter(
-                new OrganizationFilter(
-                        profileProcessor,
-                        profileReloadExecutor()
-                )
+                new OrganizationFilter(orgProfileLoadManager, profileReloadExecutor())
         );
 
         registration.addUrlPatterns("/*");
         registration.setOrder(1);
         registration.setAsyncSupported(true);
-
         return registration;
     }
 }

@@ -14,7 +14,7 @@ dependencyManagement {
 }
 
 group = 'com.ubs'
-version = '0.0.10'
+version = '0.0.1-5'
 description = 'OSOS Multi-organization driver library'
 sourceCompatibility = '11'
 

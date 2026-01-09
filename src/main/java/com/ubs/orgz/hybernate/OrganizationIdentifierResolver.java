@@ -5,12 +5,10 @@ import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 
 public class OrganizationIdentifierResolver implements CurrentTenantIdentifierResolver {
 
-    private static final String DEFAULT_ORG = "default";
-
     @Override
     public String resolveCurrentTenantIdentifier() {
         String org = OrganizationContext.getOrganization();
-        return (org != null) ? org : DEFAULT_ORG;
+        return (org != null) ? org : OrganizationContext.ORGZ_ADMIN;
     }
 
     @Override

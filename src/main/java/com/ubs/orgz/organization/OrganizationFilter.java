@@ -1,9 +1,6 @@
 package com.ubs.orgz.organization;
 
-import com.ubs.commons.exception.GearsException;
-import com.ubs.commons.exception.GearsResponseStatus;
-import com.ubs.orgz.organization_profile.OrganizationProfileProcessor;
-import com.ubs.orgz.organization_profile.ProfileRegistry;
+import com.ubs.orgz.organization_profile.process.OrgProfileLoadManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -17,13 +14,12 @@ public class OrganizationFilter implements Filter {
 
     private static final String ORG_HEADER = "X-Organization-Id";
 
-    private final OrganizationProfileProcessor profileProcessor;
+    private final OrgProfileLoadManager profileManager;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final AtomicBoolean reloadInProgress = new AtomicBoolean(false);
 
-    public OrganizationFilter(OrganizationProfileProcessor profileProcessor,
-                              ThreadPoolTaskExecutor taskExecutor) {
-        this.profileProcessor = profileProcessor;
+    public OrganizationFilter(OrgProfileLoadManager profileManager, ThreadPoolTaskExecutor taskExecutor) {
+        this.profileManager = profileManager;
         this.taskExecutor = taskExecutor;
     }
 
@@ -36,49 +32,52 @@ public class OrganizationFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String orgId = httpRequest.getHeader(ORG_HEADER);
-
-        if (orgId == null || orgId.isBlank()) {
-            httpResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-                    ORG_HEADER + " - header is missing or empty.");
+        if (orgId == null) {
+            httpResponse.sendError(HttpStatus.BAD_REQUEST.value(), ORG_HEADER + " - header is missing or empty.");
             return;
         }
 
-        try {
-            if (!ProfileRegistry.exists(orgId)) {
-                httpResponse.sendError(HttpStatus.NOT_FOUND.value(),
-                        "Unknown organization: " + orgId);
+        /**** admin org : do not further check nor set context.
+         * will then do async reload later. ****/
+        if (!OrganizationContext.ORGZ_ADMIN.equals(orgId)) {
+            if (!MasterStoreRegistry.isReady()) {
+                httpResponse.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), "Organization registry is not ready.");
                 return;
             }
-        } catch (IllegalStateException e) {
-            httpResponse.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
-                    "ProfileRegistry not ready.");
-            return;
+            if (MasterStoreRegistry.isOrganizationUnknown(orgId)) {
+                httpResponse.sendError(HttpStatus.NOT_FOUND.value(), "Unknown organization: " + orgId);
+                return;
+            }
+            OrganizationContext.setOrganization(orgId);
         }
 
-        OrganizationContext.setOrganization(orgId);
         try {
             chain.doFilter(request, response);
-            if (OrganizationContext.BOOTSTRAP_ORG.equals(orgId)) {
-                triggerReloadAsync();
-            }
-
         } finally {
             OrganizationContext.clear();
+        }
+
+        if (OrganizationContext.ORGZ_ADMIN.equals(orgId)) {
+            triggerReloadAsync();
         }
     }
 
     private void triggerReloadAsync() {
-        if (reloadInProgress.compareAndSet(false, true)) {
-            taskExecutor.execute(() -> {
-                try {
-                    profileProcessor.reload();
-                } catch (Exception ex) {
-                    throw new GearsException(GearsResponseStatus.INTERNAL_ERROR, "Failed to reload profiles");
-                } finally {
-                    reloadInProgress.set(false);
-                }
-            });
+        if (!reloadInProgress.compareAndSet(false, true)) {
+            return;
         }
+
+        taskExecutor.execute(() -> {
+            try {
+                OrganizationContext.setOrganization(OrganizationContext.ORGZ_ADMIN);
+                profileManager.loadOnDemand();
+            } catch (Exception ex) {
+                ; // ignore
+            } finally {
+                OrganizationContext.clear();
+                reloadInProgress.set(false);
+            }
+        });
     }
 }
 
